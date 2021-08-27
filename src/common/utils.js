@@ -2,6 +2,7 @@ let SIGN_REGEXP = /([yMdhsm])(\1*)/g;
 let DEFAULT_PATTERN = 'yyyy-MM-dd';
 import jwtDecode from 'jwt-decode'
 import { Message } from 'element-ui';
+import querystring from 'querystring';
 function padding(s, len) {
   var len = len - (s + '').length;
   for (var i = 0; i < len; i++) {
@@ -19,7 +20,10 @@ export default {
     let uid = this.getCookie("uid")
     if(uid){
       let activeUserStr = this.getUserSession("activeUser");
-      return JSON.parse(activeUserStr);
+      let userStr = decodeURIComponent(activeUserStr);
+      let user = JSON.parse(userStr);
+      console.log(user);
+      return user;
     }else{
       this.delUserSession("activeUser")
     }

@@ -70,8 +70,10 @@
             editSubmit: function () {
                 this.$refs['pageForm'].validate((valid) => {
                     if (valid) {
+                        var moment = require("moment");
+                        this.pageForm.updatedTime = moment(this.pageForm.updatedTime).format("YYYY-MM-DD HH:mm:ss");
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
-                            cmsApi.page_edit(this.pageForm, this.pageId).then((res) => {
+                            cmsApi.page_edit(this.pageForm, this.orderId).then((res) => {
                                 if (res.success) {
                                     this.$message({
                                             message: '修改成功',
@@ -109,12 +111,11 @@
                 })
             },
             //点击修改时进入初始化数据
-            query_edit: function (orderId) {
-                console.log(orderId);
-                cmsApi.page_findByPageId(orderId).then(res => {
+            query_edit: function () {
+                cmsApi.page_findByOrderId(this.orderId).then(res => {
                     console.log(res)
                     if (res.success) {
-                        this.pageForm = res.cmsPage
+                        this.pageForm = res.data
                     }else {
                         this.$message({
                                 message: res.data,
@@ -132,7 +133,7 @@
         },
         created() {
             this.orderId = this.$route.query.orderId;
-            this.query_edit(this.orderId);
+            this.query_edit();
         }
     }
 </script>

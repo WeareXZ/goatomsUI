@@ -56,7 +56,6 @@
         <template slot-scope="scope">
           <el-button v-on:click="edit(scope.row.orderId)" type="text" size="small" align="left">修改</el-button>
           <el-button v-on:click="out(scope.row.orderId)" type="text" size="small" align="left">出库</el-button>
-          <el-button v-on:click="del(scope.row.orderId)" type="text" size="small" align="left">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,10 +94,17 @@
                 // alert('查询')
                 //调用服务端的接口
                 cmsApi.page_list(this.params.page, this.params.size, this.params).then((res) => {
-                    //将res结果数据赋值给数据模型对象
-                    console.log(res)
-                    this.list = res.data.records;
-                    this.total = res.data.total;
+                    if(res.success){
+                        //将res结果数据赋值给数据模型对象
+                        console.log(res)
+                        this.list = res.data.records;
+                        this.total = res.data.total;
+                    }else {
+                        this.$message({
+                            message: res.data,
+                            type: 'error'
+                        });
+                    }
                 })
 
             },
@@ -125,49 +131,23 @@
                 })
             },
             out: function (orderId) {
-                this.$router.push({
-                    path: '/cms/page/edit/' + orderId,
-                    query: {
-                        page: this.params.page,
-                        orderStatus: this.params.orderStatus,
-                        shoeCode: this.params.shoeCode,
-                        shoeSize: this.params.shoeSize,
+                cmsApi.page_findByOrderIdByStatus(orderId).then((res) => {
+                    if(res.success){
+                        this.$router.push({
+                            path: '/cms/page/out',
+                            query: {
+                                orderId:orderId,
+                                page: this.params.page,
+                                shoeCode: this.params.shoeCode,
+                                shoeSize: this.params.shoeSize,
+                            }
+                        })
+                    }else {
+                        this.$message({
+                            message: res.data,
+                            type: 'error'
+                        })
                     }
-                })
-            },
-            del: function (orderId) {
-                this.$confirm('确认删除吗？', '提示', {}).then(() => {
-                    cmsApi.page_delete(orderId).then(res => {
-                        if (res.success) {
-                            this.$message({
-                                message: '删除成功',
-                                type: 'true'
-                            })
-                            this.query()
-                        } else {
-                            this.$message({
-                                message: '删除失败',
-                                type: 'false'
-                            })
-                        }
-                    })
-                })
-            },
-            post: function (orderId) {
-                this.$confirm('确认发布吗？', '提示', {}).then(() => {
-                    cmsApi.page_post(orderId).then(res => {
-                        if (res.success) {
-                            this.$message({
-                                message: '发布成功',
-                                type: 'true'
-                            })
-                        } else {
-                            this.$message({
-                                message: '发布失败',
-                                type: 'true'
-                            })
-                        }
-                    })
                 })
             },
             dateFormat: function (row, column) {

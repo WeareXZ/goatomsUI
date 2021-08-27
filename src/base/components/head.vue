@@ -24,10 +24,10 @@
         <div class="nav">
 
           <div class="usermenu">
-            <span class="el-dropdown-link userinfo-inner"><img
-              :src="this.user.sysUserImg!=null?this.user.sysUserImg:'/static/images/small.jpg'"/></span>
-            欢迎您：{{user.username}}
-            <a href="http://www.xuecheng.com" target="_blank"><i class="el-icon-star-on"></i>首页</a>
+            <span class="el-dropdown-link userinfo-inner"><!--<img
+              :src="this.user.sysUserImg!=null?this.user.sysUserImg:'/static/images/small.jpg'"/>--></span>
+            欢迎您：{{user.userName}}
+            <!--<a href="http://www.xuecheng.com" target="_blank"><i class="el-icon-star-on"></i>首页</a>-->
             <a href="javascript:;" @click="logout" :loading="editLoading"><i class="el-icon-circle-close"></i>退出</a>
           </div>
         </div>
@@ -56,9 +56,7 @@
         editLoading: false,
         sysName: '系统管理中心',
         user: {
-          userid: '',
-          username: '',
-          userimg: ''
+            userName: ''
         },
         logined: false,
         collapsed: false,
@@ -71,8 +69,16 @@
       //退出登录
       logout: function () {
         this.$confirm('确认退出吗?', '提示', {}).then(() => {
+            loginApi.loginOut().then((res) => {
+                if(res.success){
+                    sessionStorage.clear();
+                    this.$router.push({
+                        path: '/'
+                    })
+                }
+            })
           //跳转到统一登陆
-          window.location = "http://ucenter.xuecheng.com/#/logout"
+          //window.location = "http://ucenter.xuecheng.com/#/logout"
           /*const loading = this.$loading({
             lock: true,
             text: 'Loading',
@@ -93,12 +99,15 @@
               loading.close();
             });*/
         }).catch(() => {
-
+            this.$message({
+                    message: '退出失败',
+                    type: 'error'
+                }
+            )
         });
       },
       refresh_user: function () {
         let activeUser = utilApi.getActiveUser();
-
         if (activeUser) {
           this.logined = true
           this.user = activeUser;

@@ -74,6 +74,8 @@
                 this.$refs['pageForm'].validate((valid) => {
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                            var moment = require("moment");
+                            this.pageForm.createdTime = moment(this.pageForm.createdTime).format("YYYY-MM-DD HH:mm:ss");
                             cmsApi.page_add(this.pageForm).then((res) => {
                                 if (res.success) {
                                     this.$message({

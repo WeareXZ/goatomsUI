@@ -16,20 +16,20 @@ export const page_add = (params) =>{
   return http.requestPost(apiUrl+'/oms/saveOrder',params);
 }
 
-export const page_findByPageId = (pageId) =>{
+export const page_findByOrderId = (pageId) =>{
   return http.requestQuickGet(apiUrl+'/oms/findOne?id='+pageId);
 }
 
+export const page_findByOrderIdByStatus = (pageId) =>{
+  return http.requestQuickGet(apiUrl+'/oms/findOneByStatus?id='+pageId);
+}
+
 export const page_edit = (params,id) =>{
-  return http.requestPut(apiUrl+'/cms/page/edit/'+id,params);
+  return http.requestPut(apiUrl+'/oms/edit/'+id,params);
 }
 
-export const page_delete = (id) =>{
-  return http.requestDelete(apiUrl+'/cms/page/delete/'+id);
-}
-
-export const page_out = (pageId) =>{
-  return http.requestPost(apiUrl+'/cms/page/post/'+pageId);
+export const page_out = (params,id) =>{
+  return http.requestPut(apiUrl+'/oms/inStorage/'+id,params);
 }
 
 

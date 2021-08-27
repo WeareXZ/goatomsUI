@@ -23,7 +23,7 @@ module.exports = {
 
       },
       // 以/api/cms开头的请求，代理请求http://localhost:31001
-      '/api/oms': {
+      '/api': {
         target: xcApiUrl,
         pathRewrite: {
           '^/api': '/goat'  //设置api请求地址为‘’ 实际请求去掉/api
