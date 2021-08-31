@@ -23,6 +23,9 @@
       }}">
         <el-button type="primary" size="small">新增页面</el-button>
       </router-link>
+      <el-button type="primary" size="small" v-on:click="orderExport">订单导出</el-button>
+      <el-button type="primary" size="small" v-on:click="calculate">利润统计</el-button>
+      <el-input type="info" v-model="totalProfit" style="width: 100px" disabled="true"></el-input>
     </el-form>
     <el-table
       :data="list"
@@ -56,6 +59,7 @@
         <template slot-scope="scope">
           <el-button v-on:click="edit(scope.row.orderId)" type="text" size="small" align="left">修改</el-button>
           <el-button v-on:click="out(scope.row.orderId)" type="text" size="small" align="left">出库</el-button>
+          <el-button v-on:click="cancel(scope.row.orderId)" type="text" size="small" align="left">取消</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,6 +84,7 @@
                 orderStatusList: [],//状态列表
                 list: [],
                 total: 0,
+                totalProfit: 0,
                 params: {
                     orderStatus: '',
                     shoeCode: '',
@@ -94,12 +99,12 @@
                 // alert('查询')
                 //调用服务端的接口
                 cmsApi.page_list(this.params.page, this.params.size, this.params).then((res) => {
-                    if(res.success){
+                    if (res.success) {
                         //将res结果数据赋值给数据模型对象
                         console.log(res)
                         this.list = res.data.records;
                         this.total = res.data.total;
-                    }else {
+                    } else {
                         this.$message({
                             message: res.data,
                             type: 'error'
@@ -132,23 +137,79 @@
             },
             out: function (orderId) {
                 cmsApi.page_findByOrderIdByStatus(orderId).then((res) => {
-                    if(res.success){
+                    if (res.success) {
                         this.$router.push({
                             path: '/cms/page/out',
                             query: {
-                                orderId:orderId,
+                                orderId: orderId,
                                 page: this.params.page,
                                 shoeCode: this.params.shoeCode,
                                 shoeSize: this.params.shoeSize,
                             }
                         })
-                    }else {
+                    } else {
                         this.$message({
                             message: res.data,
                             type: 'error'
                         })
                     }
                 })
+            },
+            cancel: function (orderId) {
+                cmsApi.page_cancel(orderId).then((res) => {
+                    if (res.success) {
+                        this.$message({
+                            message: "取消成功",
+                            type: 'success'
+                        })
+                        this.query()
+                    } else {
+                        this.$message({
+                            message: res.data,
+                            type: 'error'
+                        })
+                    }
+                })
+            },
+            calculate: function () {
+                // alert('查询')
+                //调用服务端的接口
+                cmsApi.page_calculate(this.params.page, this.params.size, this.params).then((res) => {
+                    if (res.success) {
+                        //将res结果数据赋值给数据模型对象
+                        console.log(res)
+                        this.totalProfit = res.data;
+                    } else {
+                        this.$message({
+                            message: res.data,
+                            type: 'error'
+                        });
+                    }
+                })
+
+            },
+            orderExport: function () {
+                //调用服务端的接口
+                cmsApi.exportexcl(this.params).then((res) => {
+                    if (res) {
+                        //将res结果数据赋值给数据模型对象
+                        console.log(res.data)
+                        const blob = new Blob([res.data], {type: 'application/ms-excel'}); // 解析后端返回的乱码
+                        const elink = document.createElement('a');
+                        elink.download = "order.xls"; //定义下载名字
+                        elink.href = URL.createObjectURL(blob);
+                        document.body.appendChild(elink);
+                        elink.click();
+                        URL.revokeObjectURL(elink.href); // 释放URL 对象
+                        document.body.removeChild(elink);
+                    } else {
+                        this.$message({
+                            message: "导出错误",
+                            type: 'error'
+                        });
+                    }
+                })
+
             },
             dateFormat: function (row, column) {
                 var date = row[column.property];
