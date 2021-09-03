@@ -131,8 +131,80 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: './',
+    proxyTable: {
+      '/banner': {
+        // target: 'http://localhost:3000/mock/11'
+        target: 'http://127.0.0.1:7777'
 
+      },
+      // 以/api/cms开头的请求，代理请求http://localhost:31001
+      '/api': {
+        target: 'http://127.0.0.1:8085',
+        pathRewrite: {
+          '^/api': '/goat'  //设置api请求地址为‘’ 实际请求去掉/api
+        }
+        //target: 'http://127.0.0.1:50201'
+
+      }
+      /*,
+      '/ucenter': {
+        // target: 'http://localhost:3000/mock/11'
+        //target: 'http://127.0.0.1:31200'
+        target: 'http://127.0.0.1:50201'
+
+      },
+      '/auth': {
+        // target: 'http://localhost:3000/mock/11'
+        //target: 'http://127.0.0.1:31200'
+        target: 'http://127.0.0.1:50201/api'
+
+      },
+      '/course': {
+        // target: 'http://localhost:3000/mock/11'
+        //target: 'http://127.0.0.1:31200'
+        target: 'http://127.0.0.1:50201/api'
+
+      },
+      '/media': {//媒资管理
+        //target: 'http://127.0.0.1:31400'
+        target: 'http://127.0.0.1:50201'
+      },
+
+      '/cms/!*': {//cms管理
+        //target: 'http://127.0.0.1:31001'
+        target: 'http://127.0.0.1:50201'
+
+      },
+
+
+      '/filesystem/!*': {//文件系统管理
+        //target: 'http://127.0.0.1:22100'
+        target: 'http://127.0.0.1:50201'
+
+      },
+      '/category/!*': {//分类管理
+        // target: 'http://127.0.0.1:3000/mock/11'
+        //target: 'http://127.0.0.1:31200'
+        target: 'http://127.0.0.1:50201'
+
+      },
+      '/sys/!*': {//系统管理
+        //target: 'http://127.0.0.1:31001'
+        target: 'http://127.0.0.1:50201'
+
+      },*/
+      /*'/static/!*': {//系统管理
+        //target: 'http://127.0.0.1:31001'
+        target: 'http://127.0.0.1'
+
+      },
+      '/group1/*': {//系统管理
+        // target: 'http://127.0.0.1:3000/mock/11'
+        target: 'http://192.168.101.64'
+
+      }*/
+    },
     /**
      * Source Maps
      */

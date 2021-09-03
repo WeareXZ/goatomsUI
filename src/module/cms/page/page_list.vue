@@ -25,7 +25,19 @@
       </router-link>
       <el-button type="primary" size="small" v-on:click="orderExport">订单导出</el-button>
       <el-button type="primary" size="small" v-on:click="calculate">利润统计</el-button>
-      <el-input type="info" v-model="totalProfit" style="width: 100px" disabled="true"></el-input>
+      <el-input type="info" v-model="totalProfit" style="width: 100px" size="small" disabled="true"></el-input>
+      <el-upload style="margin-left: 8px;"
+                 class="upload-demo inline-block margin-right-10"
+                 action=""
+                 :on-change="handleChange"
+                 :show-file-list="false"
+                 :on-remove="handleRemove"
+                 :file-list="fileListUpload"
+                 :limit="limitUpload"
+                 accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                 :auto-upload="false">
+        <el-button  type="primary" size="small">订单导入</el-button>
+      </el-upload>
     </el-form>
     <el-table
       :data="list"
@@ -81,6 +93,10 @@
     export default {
         data() {
             return {
+                fileListUpload:[],
+                limitUpload:1,
+                disabled:false,
+                accountList:[],
                 orderStatusList: [],//状态列表
                 list: [],
                 total: 0,
@@ -190,7 +206,7 @@
             },
             orderExport: function () {
                 //调用服务端的接口
-                cmsApi.exportexcl(this.params).then((res) => {
+                cmsApi.exportexcle(this.params).then((res) => {
                     if (res) {
                         //将res结果数据赋值给数据模型对象
                         console.log(res.data)
@@ -210,6 +226,109 @@
                     }
                 })
 
+            },
+            handleChange(file, fileList) {
+                this.fileTemp = file.raw
+                let fileName = file.raw.name
+                let fileType = fileName.substring(fileName.lastIndexOf('.') + 1);
+                // 判断上传文件格式
+                if (this.fileTemp) {
+                    if ((fileType == 'xlsx') || (fileType == 'xls')) {
+                        this.importf(this.fileTemp)
+                        console.log(this.accountList)
+                    } else {
+                        this.$message({
+                            type: 'warning',
+                            message: '附件格式错误，请删除后重新上传！'
+                        })
+                    }
+                } else {
+                    this.$message({
+                        type: 'warning',
+                        message: '请上传附件！'
+                    })
+                }
+            },
+            //导入的方法
+            importf(obj) {
+                this.dialogVisible = true;
+                let _this = this;
+                let inputDOM = this.$refs.inputer;   // 通过DOM取文件数据
+                this.file = event.currentTarget.files[0];
+                var rABS = false; //是否将文件读取为二进制字符串
+                var f = this.file;
+                var reader = new FileReader();
+                //if (!FileReader.prototype.readAsBinaryString) {
+                FileReader.prototype.readAsBinaryString = function (f) {
+                    var binary = "";
+                    var rABS = false; //是否将文件读取为二进制字符串
+                    var pt = this;
+                    var wb; //读取完成的数据
+                    var outdata;
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var bytes = new Uint8Array(reader.result);
+                        var length = bytes.byteLength;
+                        for (var i = 0; i < length; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        var XLSX = require('xlsx');
+                        if (rABS) {
+                            wb = XLSX.read(btoa(fixdata(binary)), { //手动转化
+                                type: 'base64'
+                            });
+                        } else {
+                            wb = XLSX.read(binary, {
+                                type: 'binary'
+                            });
+                        }
+                        // outdata就是你想要的东西 excel导入的数据
+                        outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                        // excel 数据再处理
+                        let arr = []
+                        outdata.map(v => {
+                            // let jsonString = JSON.stringify(v).replace(/\*/g, '').replace(/\s/ig,'');
+                            let jsonString = JSON.stringify(v).replace(/\//g, '').replace(/\s/ig,'');
+                            //debugger;
+                            console.log(jsonString);
+                            v = JSON.parse(jsonString);
+                            let obj = {}
+                            //xxx代表列名
+                            obj.shoeCode = v.shoeCode
+                            obj.shoeSize = v.shoeSize
+                            obj.price = v.price
+                            obj.profit = v.profit
+                            obj.orderStatus = v.orderStatus
+                            obj.remark = v.remark
+                            obj.createdTime = v.createdTime
+                            obj.updatedTime = v.updatedTime
+                            // obj.id = v.id
+                            arr.push(obj)
+                        })
+                        _this.accountList = [...arr];
+                        console.log(_this.accountList )
+                        cmsApi.importexcle(_this.accountList).then((res) => {
+                            if (res.success) {
+                                _this.query()
+                            } else {
+                                _this.$message({
+                                    message: "导入失败",
+                                    type: 'error'
+                                })
+                            }
+                        })
+                    }
+                    reader.readAsArrayBuffer(f);
+                }
+                if (rABS) {
+                    reader.readAsArrayBuffer(f);
+                } else {
+                    reader.readAsBinaryString(f);
+                }
+            },
+            // 移除excel表
+            handleRemove(file, fileList) {
+                this.fileTemp = null
             },
             dateFormat: function (row, column) {
                 var date = row[column.property];

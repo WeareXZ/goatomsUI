@@ -52,10 +52,14 @@ export const page_export = (page,size,params) =>{
 }
 
 // 查询结果导出
-export function exportexcl(params) {
+export function exportexcle(params) {
   let query = querystring.stringify(params);
   console.log(query)
   return axios.post(apiUrl + '/oms/orderExport?'+query, query, {
     responseType: 'blob'
   });
+}
+
+export const importexcle = (params) =>{
+  return http.requestPost(apiUrl+'/oms/orderImport',params);
 }
