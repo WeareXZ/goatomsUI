@@ -14,6 +14,20 @@
       <el-input v-model="params.shoeCode" placeholder="请输入内容" clearable style="width: 200px"></el-input>
       鞋码尺寸:
       <el-input v-model="params.shoeSize" placeholder="请输入内容" clearable style="width: 200px"></el-input>
+      入库时间:
+      <el-date-picker
+        v-model="params.startTime"
+        type="date"
+        placeholder="开始日期"
+        value-format="yyyy-MM-dd">
+      </el-date-picker>
+      ——
+      <el-date-picker
+        v-model="params.endTime"
+        type="date"
+        placeholder="结束日期"
+        value-format="yyyy-MM-dd">
+      </el-date-picker>
       <el-button type="primary" size="small" v-on:click="query">查询</el-button>
       <router-link class="mui‐tab‐item" :to="{path:'/cms/page/add/',query:{
         page:this.params.page,
@@ -105,6 +119,8 @@
                     orderStatus: '',
                     shoeCode: '',
                     shoeSize: '',
+                    startTime:'',
+                    endTime:'',
                     page: 1,
                     size: 10
                 }
@@ -114,6 +130,7 @@
             query: function () {
                 // alert('查询')
                 //调用服务端的接口
+                console.log(this.params)
                 cmsApi.page_list(this.params.page, this.params.size, this.params).then((res) => {
                     if (res.success) {
                         //将res结果数据赋值给数据模型对象
