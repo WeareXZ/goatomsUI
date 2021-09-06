@@ -90,13 +90,24 @@
       </el-table-column>
     </el-table>
     <!--分页-->
-    <el-pagination
-      layout="prev, pager, next"
+   <!-- <el-pagination
+      layout="sizes,prev, pager, next"
       :total="total"
       :page-size="params.size"
       :current-page="params.page"
-      v-on:current-change="changePage"
+      :page-sizes="[50, 100, 200, 500,1000]"
+      v-on:current-change="changePage",
+      v-on:size-change="handleSizeChange"
       style="float:right">
+    </el-pagination>-->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="changePage"
+      :current-page.sync="params.page"
+      :page-sizes="[50, 200, 500, 1000]"
+      :page-size="50"
+      layout="sizes, prev, pager, next"
+      :total="total">
     </el-pagination>
   </div>
 </template>
@@ -122,7 +133,7 @@
                     startTime:'',
                     endTime:'',
                     page: 1,
-                    size: 10
+                    size: 50
                 }
             }
         },
@@ -150,6 +161,13 @@
                 //调用query方法
                 // alert(page)
                 this.params.page = page;
+                this.query()
+                ////初始化站点列表
+            },
+            handleSizeChange(size) {
+                //调用query方法
+                // alert(page)
+                this.params.size = size;
                 this.query()
                 ////初始化站点列表
             },
