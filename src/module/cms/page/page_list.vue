@@ -73,13 +73,15 @@
           <span v-if="scope.row.orderStatus==1">出库</span>
         </template>
       </el-table-column>
-      <el-table-column prop="price" label="价格" width="250">
+      <el-table-column prop="price" label="价格" width="100">
       </el-table-column>
-      <el-table-column prop="profit" label="利润" width="250">
+      <el-table-column prop="profit" label="利润" width="100">
       </el-table-column>
-      <el-table-column prop="remark" label="备注" width="250">
+      <el-table-column prop="remark" label="备注" width="150">
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="180" :formatter="dateFormat">
+      </el-table-column>
+      <el-table-column prop="updatedTime" label="出库时间" width="180" :formatter="dateFormat">
       </el-table-column>
       <el-table-column label="操作" width="300px">
         <template slot-scope="scope">
